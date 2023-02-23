@@ -32,25 +32,25 @@ function onSubmit(e) {
 
   newsApiService.resetPage();
   clearNewsList();
-  if (value === '') {
+  loadMoreBtn.hide();
+
+  if (!value) {
     Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
-    clearNewsList();
-    loadMoreBtn.hide();
     return;
   } else {
-    fetchArticles().finally(() => {
-      form.reset();
-    });
+    fetchArticles();
   }
 }
 
 async function fetchArticles() {
   try {
     const articles = await newsApiService.getNews();
-    if (articles.hits.length === 0) throw new Error('No data');
-    else if (totalHits >= articles.totalHits) {
+    const hits = articles.data.hits;
+    const data = articles.data;
+    if (!hits.length) throw new Error('No data');
+    else if (totalHits >= data.totalHits) {
       Notify.warning(
         "We're sorry, but you've reached the end of search results."
       );
@@ -58,10 +58,10 @@ async function fetchArticles() {
       return;
     } else {
       loadMoreBtn.show();
-      totalHits += articles.hits.length;
+      totalHits += hits.length;
       Notify.success(`Hooray! We found ${totalHits} images.`);
       loadMoreBtn.disable();
-      const markup = articles.hits.reduce(
+      const markup = hits.reduce(
         (markup, article) => createMarkup(article) + markup,
         ''
       );
@@ -73,6 +73,8 @@ async function fetchArticles() {
   } catch (error) {
     onError(error);
     return;
+  } finally {
+    form.reset();
   }
 }
 function appendNewsToList(markup) {

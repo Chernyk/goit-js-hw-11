@@ -9,12 +9,19 @@ export default class NewsApiService {
     this.searchQuery = '';
   }
   async getNews() {
-    const URL = `${ENDPOINT}?key=${KEY}&q=${this.searchQuery}&per_page=40&page=${this.page}&image_type=photo&orientation=horizontal&safesearch=true`;
-
-    return axios.get(URL).then(response => {
-      this.nextPage();
-      return response.data;
+    const searchUrl = new URLSearchParams({
+      key: KEY,
+      q: this.searchQuery,
+      page: this.page,
+      per_page: 40,
+      image_type: 'photo',
+      orientation: 'horizontal',
+      safesearch: true,
     });
+    const URL = `${ENDPOINT}?${searchUrl.toString()}`;
+    this.nextPage();
+
+    return await axios.get(URL);
   }
   nextPage() {
     this.page += 1;
