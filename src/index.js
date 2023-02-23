@@ -50,7 +50,8 @@ async function fetchArticles() {
     const hits = articles.data.hits;
     const data = articles.data;
     if (!hits.length) throw new Error('No data');
-    else if (totalHits >= data.totalHits) {
+    else if (newsApiService.page >= Math.ceil(articles.data.totalHits / 40)) {
+      // else if (totalHits >= data.totalHits) {
       Notify.warning(
         "We're sorry, but you've reached the end of search results."
       );
