@@ -96,7 +96,7 @@ body {
     grid-template-columns: repeat(5, auto);
   }
 }
-@media only screen and (min-width: 1250px) {
+@media only screen and (max-width: 1250px) {
   .gallery {
     grid-template-columns: repeat(4, auto);
   }
