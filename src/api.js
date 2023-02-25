@@ -19,7 +19,6 @@ export default class NewsApiService {
       safesearch: true,
     });
     const URL = `${ENDPOINT}?${searchUrl.toString()}`;
-    this.nextPage();
 
     return await axios.get(URL);
   }

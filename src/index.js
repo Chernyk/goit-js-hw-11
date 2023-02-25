@@ -25,7 +25,7 @@ loadMoreBtn.button.addEventListener('click', fetchArticles);
 let totalHits = 0;
 function onSubmit(e) {
   e.preventDefault();
-
+  totalHits = 0;
   const form = e.currentTarget;
   const value = form.elements.searchQuery.value.trim();
   newsApiService.searchQuery = value;
@@ -50,30 +50,30 @@ async function fetchArticles() {
     const hits = articles.data.hits;
     const data = articles.data;
     if (!hits.length) throw new Error('No data');
-    else if (newsApiService.page >= Math.ceil(articles.data.totalHits / 40)) {
-      // else if (totalHits >= data.totalHits) {
+
+    loadMoreBtn.show();
+    totalHits += hits.length;
+    Notify.success(`Hooray! We found ${totalHits} images.`);
+    loadMoreBtn.disable();
+    const markup = hits.reduce(
+      (markup, article) => createMarkup(article) + markup,
+      ''
+    );
+    allGallery += markup;
+    loadMoreBtn.enable();
+    appendNewsToList(markup);
+    Gallery.refresh();
+
+    if (newsApiService.page >= Math.floor(articles.data.totalHits / 40)) {
       Notify.warning(
         "We're sorry, but you've reached the end of search results."
       );
       loadMoreBtn.hide();
       return;
-    } else {
-      loadMoreBtn.show();
-      totalHits += hits.length;
-      Notify.success(`Hooray! We found ${totalHits} images.`);
-      loadMoreBtn.disable();
-      const markup = hits.reduce(
-        (markup, article) => createMarkup(article) + markup,
-        ''
-      );
-      allGallery += markup;
-      loadMoreBtn.enable();
-      appendNewsToList(markup);
-      Gallery.refresh();
     }
+    newsApiService.nextPage();
   } catch (error) {
-    onError(error);
-    return;
+    return onError(error);
   } finally {
     form.reset();
   }
